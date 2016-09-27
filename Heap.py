@@ -102,16 +102,18 @@ class min_heap:
         i = 0 # iniciamos la exploración en el primer elemento del heap
         while i < self._last:
             f,r = self._children(i)
+            
+            if (2*i) + 1 <= self._last or self._vec[i] > self._vec[m]:
+                
+                m = (f if self._vec[f] < self._vec[r] else r) if r <= self._last else f
+                    self._swap(i,m)
+                    i = m
+                else:
+                    i = self._last
+            else:
+                i = self._last
 
-            if r <= self._last:
-                m = f if self._vec[f] < self._vec[r] else r
-            elif r <= self._last:
-                m = f
-            else: break # si no tiene hijos se acaba el bucle
 
-            if self._vec[i] > self._vec[m]:
-                self._swap(i,m)
-                i = m
 
     """
     ====================
@@ -132,6 +134,7 @@ class min_heap:
         :return:
         """
         tmp = self.min()
+        self._swap(0, self._last)
         self._last -= 1
         self._downheap()
         return tmp
