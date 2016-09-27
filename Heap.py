@@ -108,8 +108,6 @@ class min_heap:
                 m = (f if self._vec[f] < self._vec[r] else r) if r <= self._last else f
                     self._swap(i,m)
                     i = m
-                else:
-                    i = self._last
             else:
                 i = self._last
 
