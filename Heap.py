@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Autor: canales
-# test
+#
 
 __all__ = ['min_heap']
 
@@ -50,7 +50,6 @@ class min_heap:
         Constructor del min_heap
         :param set_max: Permite establecer un tamaño inicial para el heap.
         """
-
         self._max = set_max
         self._vec = [None] * set_max
         self._last = -1;
@@ -166,6 +165,23 @@ class min_heap:
             else:
                 i += 1
 
+    def increase_key(new_key, data):
+        """
+        Decrementa la llave de un elemento en el heap. Nota: el coste de este algoritmo es de O(n)
+        en el peor de los casos (pues contiene una exploracion lineal)
+        :param data:
+        :return:
+        """
+        while i < self._last:
+            if self._vec[i][1] == data:
+                if new_key > self._vec[i][0]:
+                    raise Exception('La nueva llave debe ser más grande.')
+                else:
+                    self._vec[i][0] = new_key
+                    self._downheap(i)
+            else:
+                i += 1
+
     """
     ======================
     Sobrecarga de métodos
@@ -179,3 +195,48 @@ class min_heap:
 
     def __nonzero__(self):
         return self._last == -1
+
+class dict_heap(min_heap):
+    def __init__(self, set_max):
+        """
+        Este heap incluye un diccionario en el que se guardan los valores de los nodos para acceder a su posicion.
+        Esto permite que el acceso al nodo 'decrease_key' sea constante~ i por lo tanto el coste total sea log(n)
+        :param set_max:
+        """
+        min_heap.__init__(set_max)
+        self.values = {}
+
+    #@overrides
+    def _swap(self, a, b):
+        temp = self._vec[a]
+        self._vec[a] = self._vec[b]
+        self._vec[b] = temp
+
+        self.values[self._vect[a].data] = b
+        self.values[self._vect[b].data] = a
+
+
+    #@overrides
+    def pop_min(self):
+        self.values.pop(min_heap.pop_min(self))
+
+    #@overrides
+    def insert(self,key, val):
+        self.values[val] = key
+        min_heap.insert(key, val)
+
+    def decrease_key(self, new_key, data):
+        i = self.values[data]
+        if new_key > self._vec[i][0]:
+            raise Exception('La nueva llave debe ser más pequeña.')
+        else:
+            self._vec[i][0] = new_key
+            self._upheap(i)
+
+    def increase_key(self,new_key, data):
+        i = self.values[data]
+        if new_key < self._vec[i][0]:
+            raise Exception('La nueva llave debe ser más grande.')
+        else:
+            self._vec[i][0] = new_key
+            self._downheap(i)
