@@ -89,7 +89,8 @@ class min_heap:
         self._vec[a] = self._vec[b]
         self._vec[b] = temp
 
-    def _upheap(self, i):
+    def _upheap(self):
+        i = self._last
         while i > 0:
             p = self._parent(i)
             if self._vec[i] < self._vec[p]:
@@ -98,19 +99,21 @@ class min_heap:
             else: i = 0
 
     def _downheap(self):
-        i = 0 # iniciamos la exploración en el primer elemento del heap
+        i = 0  # iniciamos la exploración en el primer elemento del heap
         while i < self._last:
-            f,r = self._children(i)
+            f, r = self._children(i)
 
-            if r <= self._last:
-                m = f if self._vec[f] < self._vec[r] else r
-            elif r <= self._last:
-                m = f
-            else: break # si no tiene hijos se acaba el bucle
+            if f <= self._last:
 
-            if self._vec[i] > self._vec[m]:
-                self._swap(i,m)
-                i = m
+                m = (f if self._vec[f] < self._vec[r] else r) if r <= self._last else f
+
+                if self._vec[i] > self._vec[m]:
+                    self._swap(i, m)
+                    i = m
+                else:
+                    i = self._last
+            else:
+                i = self._last
 
     """
     ====================
@@ -131,6 +134,7 @@ class min_heap:
         :return:
         """
         tmp = self.min()
+        self._swap(0, self._last)
         self._last -= 1
         self._downheap()
         return tmp
@@ -146,26 +150,27 @@ class min_heap:
         if len(self._vec) < self._next() + 1: self._vec.append(n) # si arribem al final fem append
         else: self._vec[self._next()] = n # si no simplement asociem
         self._last += 1
-        self._upheap(self._last)
+        self._upheap()
 
-    def decrease_key(new_key, data):
+    def decrease_key(self, new_key, data):
         """
         Decrementa la llave de un elemento en el heap. Nota: el coste de este algoritmo es de O(n)
         en el peor de los casos (pues contiene una exploracion lineal)
         :param data:
         :return:
         """
+        i = 0
         while i < self._last:
-            if self._vec[i][1] == data:
-                if new_key > self._vec[i][0]:
+            if self._vec[i].data == data:
+                if new_key > self._vec[i].key:
                     raise Exception('La nueva llave debe ser más pequeña.')
                 else:
-                    self._vec[i][0] = new_key
-                    self._upheap(i)
+                    self._vec[i].key = new_key
+                    self._upheap()
             else:
                 i += 1
 
-    def increase_key(new_key, data):
+    def increase_key(self, new_key, data):
         """
         Decrementa la llave de un elemento en el heap. Nota: el coste de este algoritmo es de O(n)
         en el peor de los casos (pues contiene una exploracion lineal)
@@ -173,8 +178,8 @@ class min_heap:
         :return:
         """
         while i < self._last:
-            if self._vec[i][1] == data:
-                if new_key > self._vec[i][0]:
+            if self._vec[i].data == data:
+                if new_key > self._vec[i].key:
                     raise Exception('La nueva llave debe ser más grande.')
                 else:
                     self._vec[i][0] = new_key
@@ -197,46 +202,54 @@ class min_heap:
         return self._last == -1
 
 class dict_heap(min_heap):
-    def __init__(self, set_max):
+    def __init__(self, set_max = 0):
         """
         Este heap incluye un diccionario en el que se guardan los valores de los nodos para acceder a su posicion.
         Esto permite que el acceso al nodo 'decrease_key' sea constante~ i por lo tanto el coste total sea log(n)
         :param set_max:
         """
-        min_heap.__init__(set_max)
+        min_heap.__init__(self, set_max)
         self.values = {}
 
     #@overrides
     def _swap(self, a, b):
         temp = self._vec[a]
+        self.values[self._vec[a].data] = b
+        self.values[self._vec[b].data] = a
+
         self._vec[a] = self._vec[b]
         self._vec[b] = temp
 
-        self.values[self._vect[a].data] = b
-        self.values[self._vect[b].data] = a
 
 
     #@overrides
     def pop_min(self):
-        self.values.pop(min_heap.pop_min(self))
+        tmp = min_heap.pop_min(self)
+        self.values.pop(tmp.data, 0)
+        return tmp
+
 
     #@overrides
     def insert(self,key, val):
-        self.values[val] = key
-        min_heap.insert(key, val)
+        self.values[val] = self._next()
+        min_heap.insert(self, key, val)
 
+    #@overrides
     def decrease_key(self, new_key, data):
         i = self.values[data]
-        if new_key > self._vec[i][0]:
+        if new_key > self._vec[i].key:
             raise Exception('La nueva llave debe ser más pequeña.')
         else:
-            self._vec[i][0] = new_key
-            self._upheap(i)
+            self._vec[i].key = new_key
+            self._swap(self._last,i)
+            self._upheap()
 
+    #@overrides
     def increase_key(self,new_key, data):
         i = self.values[data]
-        if new_key < self._vec[i][0]:
+        if new_key < self._vec[i].key:
             raise Exception('La nueva llave debe ser más grande.')
+
         else:
-            self._vec[i][0] = new_key
+            self._vec[i].key = new_key
             self._downheap(i)
