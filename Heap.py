@@ -103,11 +103,15 @@ class min_heap:
         while i < self._last:
             f,r = self._children(i)
             
-            if (2*i) + 1 <= self._last or self._vec[i] > self._vec[m]:
+            if f <= self._last:
                 
                 m = (f if self._vec[f] < self._vec[r] else r) if r <= self._last else f
+                
+                if self._vec[i] > self._vec[m]:
                     self._swap(i,m)
                     i = m
+                else:
+                    i = self._last
             else:
                 i = self._last
 
