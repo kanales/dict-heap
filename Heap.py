@@ -252,4 +252,5 @@ class dict_heap(min_heap):
 
         else:
             self._vec[i].key = new_key
-            self._downheap(i)
+            self._swap(i, 0)
+            self._downheap()
