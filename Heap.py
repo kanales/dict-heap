@@ -4,7 +4,7 @@
 # Autor: canales
 #
 
-__all__ = ['min_heap']
+__all__ = ['min_heap', 'dict_heap']
 
 class Node:
     def __init__(self, key, data, c_funct = None):
