@@ -199,8 +199,14 @@ class min_heap:
         return self._last + 1
 
     def __nonzero__(self):
-        return self._last == -1
+        return self._last != -1
 
+
+"""
+###########
+DICT HEAP
+###########
+"""
 class dict_heap(min_heap):
     def __init__(self, set_max = 0):
         """
@@ -225,7 +231,7 @@ class dict_heap(min_heap):
     #@overrides
     def pop_min(self):
         tmp = min_heap.pop_min(self)
-        self.values.pop(tmp.data, 0)
+        self.values.pop(tmp.data, None)
         return tmp
 
 
