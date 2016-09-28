@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Autor: Iván Canales
-#
+# Version: 2.0
 ##
 
 __all__ = ['min_heap', 'dict_heap']
