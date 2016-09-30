@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Autor: Iván Canales
+<<<<<<< HEAD
+# Author: Iván Canales
 # Version: 2.1
+=======
+# Autor: Iván Canales
+# Version: 2.0
+>>>>>>> 71d7c745fbc18fd27451eb5c6956a15cacbf3fc9
 ##
 
 __all__ = ['min_heap', 'dict_heap']
