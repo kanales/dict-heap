@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Autor: Iván Canales
-#
+# Author: Iván Canales
+# Version: 2.1
 ##
 
 __all__ = ['min_heap', 'dict_heap']
@@ -12,13 +12,13 @@ class Node:
         self.key = key
         self.data = data
         self.c_funct = c_funct
-
+	
     """
     A continuación el listado de funciones de comparacion de nodos.
     Nota: Si se usa una función 'c_funct' personalizada, esta debe cumplir:
 
-        1. Tiene dos parámetros (las dos llaves a comparar)
-        2. Debe devolver -1, 0 o 1 en si el resultado es menor igual o mayor
+        1. c_funct tiene dos parámetros (las dos llaves a comparar)
+        2. c_funct debe devolver -1, 0 o 1 en si el resultado es menor igual o mayor
             respectivamente.
     """
     def __lt__(self, other):
@@ -146,47 +146,48 @@ class min_heap:
         :param key:
         :param val:
         :return:
-	"""
+		"""
         n = Node(key,val)
         if len(self._vec) < self._next() + 1: self._vec.append(n) # si arribem al final fem append
         else: self._vec[self._next()] = n # si no simplement asociem
         self._last += 1
         self._upheap()
 
-    def decrease_key(self, new_key, data):
+    def _decrease_key(self, data, new_key):
         """
         Decrementa la llave de un elemento en el heap. Nota: el coste de este algoritmo es de O(n)
         en el peor de los casos (pues contiene una exploracion lineal)
         :param data:
         :return:
         """
-        i = 0
-        while i < self._last:
-            if self._vec[i].data == data:
-                if new_key > self._vec[i].key:
-                    raise Exception('La nueva llave debe ser más pequeña.')
-                else:
-                    self._vec[i].key = new_key
-                    self._upheap()
-            else:
-                i += 1
+		self._vec[i].key = new_key
+		self._upheap()
 
-    def increase_key(self, new_key, data):
+    def _increase_key(self, data, new_key):
         """
         Decrementa la llave de un elemento en el heap. Nota: el coste de este algoritmo es de O(n)
         en el peor de los casos (pues contiene una exploracion lineal)
         :param data:
         :return:
         """
-        while i < self._last:
-            if self._vec[i].data == data:
-                if new_key > self._vec[i].key:
-                    raise Exception('La nueva llave debe ser más grande.')
-                else:
-                    self._vec[i][0] = new_key
-                    self._downheap(i)
-            else:
-                i += 1
+		self._vec[i][0] = new_key
+		self._downheap(i)
+	
+    def modify_key(self, data, new_key):
+        """
+	Modifica la llave 'key' asociada a un valor del heap. Se hace una comprobacion y se selecciona
+	_increase_key o _decrease_key en funcion del cambio.
+	"""
+	i = 0
+	while i < self._last:
+		if self._vec[i].data == data:
+			if new_key > self._vec[i]:
+				self._increase_key(data, new_key)
+			elif new_key < self._vec[i]:
+				self._decrease_key(data, new_key)
+		else:
+			i += 1
+
 
     """
     ======================
@@ -242,22 +243,25 @@ class dict_heap(min_heap):
         min_heap.insert(self, key, val)
 
     #@overrides
-    def decrease_key(self, new_key, data):
-        i = self.values[data]
-        if new_key > self._vec[i].key:
-            raise Exception('La nueva llave debe ser más pequeña.')
-        else:
-            self._vec[i].key = new_key
-            self._swap(self._last,i)
+    def _decrease_key(self, data, new_key):
+		self._vec[i].key = new_key
+		self._swap(self._last,i)
 	    self._upheap()
 
     #@overrides
-    def increase_key(self,new_key, data):
-        i = self.values[data]
-        if new_key < self._vec[i].key:
-            raise Exception('La nueva llave debe ser más grande.')
+    def _increase_key(self, data, new_key):
+		self._vec[i].key = new_key
+		self._swap(i, 0)
+		self._downheap()
+	
+    def modify_key(self, data, new_key):
+		"""
+		En el momento de modificar la key de un elemento del heap se deberia llamar esta función
+		"""
+    	prev = self.values[data]
+		if prev > new_key:
+			self._decrease_key(data, new_key)
+		elif prev < new_key:
+			self._increase_key(data, new_key)
+    
 
-        else:
-            self._vec[i].key = new_key
-            self._swap(i, 0)
-            self._downheap()
