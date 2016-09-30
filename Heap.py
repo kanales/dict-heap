@@ -160,8 +160,8 @@ class min_heap:
         :param data:
         :return:
         """
-		self._vec[i].key = new_key
-		self._upheap()
+        self._vec[i].key = new_key
+        self._upheap()
 
     def _increase_key(self, data, new_key):
         """
@@ -170,8 +170,8 @@ class min_heap:
         :param data:
         :return:
         """
-		self._vec[i][0] = new_key
-		self._downheap(i)
+        self._vec[i][0] = new_key
+        self._downheap(i)
 	
     def modify_key(self, data, new_key):
         """
@@ -244,24 +244,24 @@ class dict_heap(min_heap):
 
     #@overrides
     def _decrease_key(self, data, new_key):
-		self._vec[i].key = new_key
-		self._swap(self._last,i)
-	    self._upheap()
+        self._vec[i].key = new_key
+        self._swap(self._last, i)
+        self._upheap()
 
     #@overrides
     def _increase_key(self, data, new_key):
-		self._vec[i].key = new_key
-		self._swap(i, 0)
-		self._downheap()
+        self._vec[i].key = new_key
+        self._swap(i, 0)
+        self._downheap()
 	
     def modify_key(self, data, new_key):
-		"""
-		En el momento de modificar la key de un elemento del heap se deberia llamar esta función
-		"""
-    	prev = self.values[data]
-		if prev > new_key:
-			self._decrease_key(data, new_key)
-		elif prev < new_key:
-			self._increase_key(data, new_key)
+	"""
+	En el momento de modificar la key de un elemento del heap se deberia llamar esta función
+	"""
+	prev = self.values[data]
+        if prev > new_key:
+		self._decrease_key(data, new_key)
+	elif prev < new_key:
+		self._increase_key(data, new_key)
     
 
