@@ -42,11 +42,16 @@ class Node:
     def __str__(self):
         return "key: " + str(self.key) + ", data: " + str(self.data)
 
+    def __iter__(self):
+	yield self.key
+	yield self.data
+
+
 class min_heap:
     """
     Clase principal del min_heap.
     """
-    def __init__(self, set_max = 0):
+    def __init__(self, set_max = 0, iterable = None):
         """
         Constructor del min_heap
         :param set_max: Permite establecer un tamaño inicial para el heap.
@@ -54,6 +59,9 @@ class min_heap:
         self._max = set_max
         self._vec = [None] * set_max
         self._last = -1;
+	if iterable:
+	    for i in iterable:
+		self.insert(*i)
 
     """
     ===================
@@ -223,7 +231,9 @@ class dict_heap(min_heap):
     def __init__(self, set_max = 0):
         """
         Este heap incluye un diccionario en el que se guardan los valores de los nodos para acceder a su posicion.
-        Esto permite que el acceso al nodo 'decrease_key' sea constante~ i por lo tanto el coste total sea log(n)
+        Esto permite que el acceso al nodo 'decrease_key' sea constante~ i por lo tanto el coste total sea log(n).
+
+	Cabe tener en cuenta que en este heap los elementos 'data' deben ser únicos, pues perteneceran a un diccionario'
         :param set_max:
         """
         min_heap.__init__(self, set_max)
@@ -238,19 +248,19 @@ class dict_heap(min_heap):
         self._vec[a] = self._vec[b]
         self._vec[b] = temp
 
-
-
     #@overrides
     def pop_min(self):
         tmp = min_heap.pop_min(self)
         self.values.pop(tmp.data, None)
         return tmp
 
-
     #@overrides
     def insert(self,key, val):
-        self.values[val] = self._next()
-        min_heap.insert(self, key, val)
+	if val in self.values:
+	    raise Exception("El elemento " + val + " ya pertenece al heap")
+	else:
+	    self.values[val] = self._next()
+	    min_heap.insert(self, key, val)
 
     #@overrides
     def _decrease_key(self, data, new_key, i):
@@ -276,4 +286,15 @@ class dict_heap(min_heap):
 		    self._increase_key(data, new_key, idx)
    	else:
 	    raise Exception('Item does not exist.')
-
+	
+    def __contains__(self, item):
+	"""
+	Devuelve 'True' si el item item esta contenido en el heap
+	"""
+        return item in self.values
+	
+    def __getitem__(self, idx):
+	"""
+	Devuelve la llave del elemento 'DATA'
+	"""
+	return self._vec[self.values[idx]].key
