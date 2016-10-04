@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Autor: Iván Canales
-# Version: 2.3
+# Version: 2.5
 ##
 
 __all__ = ['min_heap', 'dict_heap']
@@ -51,23 +51,29 @@ class min_heap:
     """
     Clase principal del min_heap.
     """
-    def __init__(self, set_max = 0, iterable = None):
+    def __init__(self, iterable = None, set_max = 0, key = None):
         """
         Constructor del min_heap
         :param set_max: Permite establecer un tamaño inicial para el heap.
         """
         self._max = set_max
-        self._vec = [None] * set_max
-        self._last = -1;
 	if iterable:
-	    for i in iterable:
-		self.insert(*i)
+	    key = (lambda x: x) if key==None else key
+	    self._vec = [Node(key(i),i) for i in iterable]
+	    self._last = len(self._vec) - 1
+	    self._build_heap()
+	else: 
+	    self._vec = [None] * set_max
+	    self._last = -1;
 
     """
     ===================
     Funciones de ayuda
     ===================
     """
+    def _build_heap(self):
+	for i in range(len(self)//2, -1, -1):
+	    self._downheap(i)
 
     def _next(self):
         """
@@ -107,22 +113,20 @@ class min_heap:
                 i = p
             else: i = 0
 
-    def _downheap(self):
-        i = 0  # iniciamos la exploración en el primer elemento del heap
-        while i < self._last:
-            f, r = self._children(i)
+    def _downheap(self, i = 0):
+	l, r = self._children(i)
+	min_ = i
+	
+	if l <= self._last and self._vec[l] < self._vec[min_]:
+	    min_ = l
+	if r <= self._last and self._vec[r] < self._vec[min_]:
+	    min_ = r
 
-            if f <= self._last:
+	if min_ != i:
+	    self._swap(i, min_)
+	    self._downheap(min_)
 
-                m = (f if self._vec[f] < self._vec[r] else r) if r <= self._last else f
 
-                if self._vec[i] > self._vec[m]:
-                    self._swap(i, m)
-                    i = m
-                else:
-                    i = self._last
-            else:
-                i = self._last
 
     """
     ====================
@@ -221,6 +225,8 @@ class min_heap:
     def __nonzero__(self):
         return self._last != -1
 
+    def __iter__(self):
+	for i in self._vec: yield i
 
 """
 ###########
@@ -236,65 +242,67 @@ class dict_heap(min_heap):
 	Cabe tener en cuenta que en este heap los elementos 'data' deben ser únicos, pues perteneceran a un diccionario'
         :param set_max:
         """
+        self._items = {}
         min_heap.__init__(self, set_max)
-        self.values = {}
 
-    #@overrides
-    def _swap(self, a, b):
-        temp = self._vec[a]
-        self.values[self._vec[a].data] = b
-        self.values[self._vec[b].data] = a
-
-        self._vec[a] = self._vec[b]
-        self._vec[b] = temp
-
-    #@overrides
-    def pop_min(self):
-        tmp = min_heap.pop_min(self)
-        self.values.pop(tmp.data, None)
-        return tmp
-
-    #@overrides
-    def insert(self,key, val):
-	if val in self.values:
-	    raise Exception("El elemento " + val + " ya pertenece al heap")
-	else:
-	    self.values[val] = self._next()
-	    min_heap.insert(self, key, val)
-
-    #@overrides
-    def _decrease_key(self, data, new_key, i):
-        self._vec[i].key = new_key
-        self._swap(self._last, i)
-        self._upheap()
-
-    #@overrides
-    def _increase_key(self, data, new_key, i):
-        self._vec[i].key = new_key
-        self._swap(i, 0)
-        self._downheap()
-	
     def modify_key(self, data, new_key):
 	"""
 	En el momento de modificar la key de un elemento del heap se deberia llamar esta función
 	"""
-	if data in self.values:
-	    idx  = self.values[data]
+	if data in self._items:
+	    idx  = self._items[data]
 	    if self._vec[idx].key > new_key:
 		    self._decrease_key(data, new_key, idx)
 	    elif self._vec[idx].key <  new_key:
 		    self._increase_key(data, new_key, idx)
    	else:
 	    raise Exception('Item does not exist.')
+
+    """
+    =====================
+    Sobrecarga de métodos
+    ====================
+    """
+    def _swap(self, a, b):
+        temp = self._vec[a]
+        self._items[self._vec[a].data] = b
+        self._items[self._vec[b].data] = a
+
+        self._vec[a] = self._vec[b]
+        self._vec[b] = temp
+
+    def pop_min(self):
+        tmp = min_heap.pop_min(self)
+        self._items.pop(tmp.data, None)
+        return tmp
+
+    def insert(self,key, val = None):
+	if val in self._items:
+	    raise Exception("El elemento " + val + " ya pertenece al heap")
+	else:
+	    val = val if val else key
+	    self._items[val] = self._next()
+	    min_heap.insert(self, key, val)
+
+    def _decrease_key(self, data, new_key, i):
+        self._vec[i].key = new_key
+        self._swap(self._last, i)
+        self._upheap()
+
+    def _increase_key(self, data, new_key, i):
+        self._vec[i].key = new_key
+        self._swap(i, 0)
+        self._downheap()
+	
 	
     def __contains__(self, item):
 	"""
 	Devuelve 'True' si el item item esta contenido en el heap
 	"""
-        return item in self.values
+        return item in self._items
 	
     def __getitem__(self, idx):
 	"""
 	Devuelve la llave del elemento 'DATA'
 	"""
-	return self._vec[self.values[idx]].key
+	return self._vec[self._items[idx]].key
