@@ -4,9 +4,10 @@
 # Version: 2.5
 ##
 
-class dict_heap:
+class dict_heap(object):
+    __slots__ = ['_vec', '_last','_items']
     """ CONSTRUCTOR """
-    def __init__(self, iterable = None, set_max = 0, key = None):
+    def __init__(self, iterable = None, default = None, key = None):
         """
         Este heap incluye un diccionario en el que se guardan los valores de los nodos para acceder a su posicion.
         Esto permite que el acceso al nodo 'decrease_key' sea constante~ i por lo tanto el coste total sea log(n).
@@ -14,16 +15,18 @@ class dict_heap:
         Cabe tener en cuenta que en este heap los elementos 'data' deben ser únicos, pues perteneceran a un diccionario'
         :param set_max: Permite establecer un tamaño inicial para el heap.
         """
-        if set_max < 0: raise Exception("set_max must be 0 or positive")
-
         if iterable:
-            key = (lambda x: x) if key==None else key
-            self._vec = [[key(i),i] for i in iterable]
+            if default != None:
+                self._vec = [[default, i] for i in iterable]
+            elif default != None:
+                self._vec = [[key(i),i] for i in iterable]
+            else:
+                self._vec = [[i,i] for i in iterable]
             self._last = len(self._vec) - 1
         else:
-            self._vec = [None] * set_max
+            self._vec = [None]
             self._last = -1;
-        self._items = {self._vec[i][1]:i for i in xrange(len(self) )}
+        self._items = {self._vec[i][1]:i for i in xrange(len(self))}
         if self: self._build_heap()
 
     """ METODOS PRINCIPALES """
@@ -76,12 +79,10 @@ class dict_heap:
         """
         Intercambia los nodos en posiciones 'a' y 'b'
         """
-        temp = self._vec[a]
         self._items[self._vec[a][1]] = b
         self._items[self._vec[b][1]] = a
 
-        self._vec[a] = self._vec[b]
-        self._vec[b] = temp
+        self._vec[a], self._vec[b] = self._vec[b], self._vec[a],
 
     def _decrease_key(self, data, new_key, i):
         self._vec[i][0] = new_key
@@ -121,7 +122,7 @@ class dict_heap:
         :param i: posicion del nodo 'padre'
         :return:
         """
-        return (i << 1) + 1, (i << 1) + 2
+        return (i * 2) + 1, (i * 2) + 2
 
     def _upheap(self):
         i = self._last
