@@ -1,5 +1,5 @@
 
-# dict\_heap
+# Dict heap
 ## ATENCIÓN: LA DOCUMENTACIÓN NO ESTA AL DÍA
 **dict\_heap** es una estructura de datos diseñada a partir de un diccionario. A diferencia de un diccionario tradicional los elementos estan ordenados siguiendo una estructura de heap binario, de manera que actua como una cola prioritaria con acceso constante a los elementos.
 
